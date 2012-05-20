@@ -49,15 +49,16 @@ public class GravityBody : MonoBehaviour
    */
   public void Gravitate(float gravity)
   {
-    // If we're grounded, don't gravitate
+    // If we're grounded or just switched attractors, don't gravitate and
+    // reset our velocity.
     if (grounded) {
       velocity = gravity;
     }
+    // Otherwise, accelerate and apply force
     else {
       velocity = velocity + (Time.fixedDeltaTime * attractor.gravity);
 
-      rigidbody.AddForce(down * rigidbody.mass * attractor.gravity, ForceMode.Acceleration);
-      //rigidbody.velocity = down * velocity;
+      rigidbody.AddForce(down * rigidbody.mass * velocity, ForceMode.Acceleration);
     }
   }
 
