@@ -3,7 +3,8 @@ using UnityEngine;
 public class PlayerGravityBody : GravityBody {
   public float maxSpeed = 4.5f;
   public float force = 8.0f;
-  public float jumpSpeed = 5.0f;
+  public float jumpingForce = 30.0f;
+
   private bool jumping = false;
 
   public float horizontalForce {
@@ -20,21 +21,11 @@ public class PlayerGravityBody : GravityBody {
   
   
   /*
-   * Private update class method
-   */
-  private void Update() {
-    // Check if jump button was pressed and ridig body is grounded
-    if (Input.GetButtonDown("Jump") == true && this.grounded) {
-      //jumping = true;
-    }
-  }
-  
-  /*
    * Private fixed update class method
    */
   void FixedUpdate() {
-    if (attractors != null) {
-      Attractor.Attract(this);
+    if (attractor != null) {
+      attractor.Attract(this);
     }
 
     // Check if rigid body velocity is within limits and grounded
@@ -46,20 +37,17 @@ public class PlayerGravityBody : GravityBody {
 
     if (jumping == true) {
       // Apply jump forces and reset flag
-      rigidbody.velocity = rigidbody.velocity + (rigidbody.transform.up * jumpSpeed);
-			
-	  jumping = false;
+      rigidbody.AddForce(up * jumpingForce, ForceMode.VelocityChange);
+      //rigidbody.velocity = rigidbody.velocity + (rigidbody.transform.up * jumpSpeed);
+      jumping = false;
     }
   }
-	
-	public bool Jump
-	{
-		get { return jumping; }
-		set { jumping = value; }
-	}
-	
-	public bool Grounded
-	{
-		get { return grounded; }
-	}
+
+  public void Jump()
+  {
+    if (grounded) {
+      jumping = true;
+    }
+  }
+
 }

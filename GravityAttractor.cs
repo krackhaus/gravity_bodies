@@ -1,11 +1,12 @@
 using UnityEngine;
 
-public class GravityAttractor : MonoBehaviour {
+public class GravityAttractor : MonoBehaviour
+{
 
   /**
    * The amount of gravity.
    */
-  public float gravity = 10.0f;
+  public float gravity = 9.8f;
 
   /**
    * The rate at which to upright rotationaly frozen objects.
@@ -20,9 +21,9 @@ public class GravityAttractor : MonoBehaviour {
   /**
    * Applies attractive forces upon and uprights the given GravityBody.
    */
-  public void Attract(GravityBody body) {
-
-    body.AddDownwardForce(gravity);
+  public void Attract(GravityBody body)
+  {
+    body.Gravitate(gravity);
 
     if (body.rigidbody.freezeRotation) {
       body.UprightPosition(uprightBodiesRate);
@@ -32,10 +33,11 @@ public class GravityAttractor : MonoBehaviour {
   /**
    * Binds to all gravity bodies when the scene starts.
    */
-  private void Start() {
+  private void Start()
+  {
     if (attractAllBodies) {
       foreach (GravityBody body in FindObjectsOfType(typeof(GravityBody))) {
-        body.Attractor = this;
+        body.attractor = this;
       }
     }
   }

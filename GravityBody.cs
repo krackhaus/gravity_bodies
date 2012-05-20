@@ -1,21 +1,25 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 [RequireComponent (typeof(Rigidbody))]
 
 public class GravityBody : MonoBehaviour
 {
-
-  protected List<GravityAttractor> attractors = new List<GravityAttractor>();
-  int currentAttractorIndex;
+  /**
+   * Current gravitational velocity.
+   */
+  private float velocity = 0f;
 
   /**
    * A counter to keep track of collisions with ground objects.
    */
   private int groundings = 0;
   
-  
-  /*
+  /**
+   * Current attractor.
+   */
+  public GravityAttractor attractor;
+
+  /**
    * Returns whether this object is currently touching a ground object.
    */
   public bool grounded
@@ -28,7 +32,7 @@ public class GravityBody : MonoBehaviour
    */
   public Vector3 up
   {
-    get { return (rigidbody.transform.position - Attractor.transform.position).normalized; }
+    get { return (rigidbody.transform.position - attractor.transform.position).normalized; }
   }
 
   /**
@@ -40,11 +44,21 @@ public class GravityBody : MonoBehaviour
   }
 
   /**
-   * Apply the given force downward to the Rigidbody.
+   * Apply gravitational force toward the attractor at the given rate of
+   * acceleration.
    */
-  public void AddDownwardForce(float force)
+  public void Gravitate(float gravity)
   {
-    rigidbody.AddForce(down * force * rigidbody.mass);
+    // If we're grounded, don't gravitate
+    if (grounded) {
+      velocity = gravity;
+    }
+    else {
+      velocity = velocity + (Time.fixedDeltaTime * attractor.gravity);
+
+      rigidbody.AddForce(down * rigidbody.mass * attractor.gravity, ForceMode.Acceleration);
+      //rigidbody.velocity = down * velocity;
+    }
   }
 
   /**
@@ -64,13 +78,6 @@ public class GravityBody : MonoBehaviour
    */
   private void Start()
   {
-    // Simple Setup of Attractors
-    currentAttractorIndex = 1;
-
-    GameObject[] planets = GameObject.FindGameObjectsWithTag("Planet");
-
-    foreach (GameObject go in planets)
-      attractors.Add(go.GetComponent<GravityAttractor>());
 
     rigidbody.WakeUp();
     rigidbody.useGravity = false;
@@ -103,10 +110,9 @@ public class GravityBody : MonoBehaviour
    */
   private void FixedUpdate() {
 
-    if (Attractor != null) {
-      Attractor.Attract(this);
+    if (attractor != null) {
+      attractor.Attract(this);
     }
-
   }
 
   /**
@@ -122,22 +128,5 @@ public class GravityBody : MonoBehaviour
     }
 
   }
-  
-  #region Planet Hopping
-  
-  public void CycleNextAttractor()
-  {
-    if (currentAttractorIndex == (attractors.Count-1))
-      currentAttractorIndex = 0;
-    else
-      currentAttractorIndex++;
-  }
-  
-  public GravityAttractor Attractor
-  {
-    get { return attractors[currentAttractorIndex]; }
-    set { attractors.Add(value); currentAttractorIndex = attractors.IndexOf(value); }
-  }
-  
-  #endregion
+
 }
